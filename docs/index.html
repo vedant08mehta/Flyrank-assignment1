@@ -109,7 +109,8 @@
       background: white;
     }
 
-    th, td {
+    th,
+    td {
       text-align: left;
       padding: 13px;
       border-bottom: 1px solid #ddd;
@@ -163,328 +164,417 @@
 
 <body>
 
-<div class="container">
+  <div class="container">
 
-  <header>
-    <div class="tag">FlyRank ML Internship · Research Project</div>
+    <header>
+      <div class="tag">FlyRank ML Internship · Research Project</div>
 
-    <h1>Finding Content Pages Worth Refreshing</h1>
+      <h1>Finding Content Pages Worth Refreshing</h1>
 
-    <p class="subtitle">
-      A practical machine learning approach to identifying content pages
-      that may need attention, using search and engagement signals.
-    </p>
-  </header>
-
-
-  <section>
-    <h2>Abstract</h2>
-
-    <p>
-      This project looks at a simple question: can we use existing search
-      and engagement data to identify content pages that are showing signs
-      of decline? I built a classification model using signals such as
-      impressions, clicks, search position, engagement and content age,
-      while keeping the prediction target separate from information that
-      would only be known later. On the honest validation split, the model
-      achieved a Precision@50 of 0.680, compared with a test-set base rate
-      of 0.517. This suggests that the model can do a better job than
-      simply selecting pages at random, although the result should not be
-      treated as proof that refreshing a page will improve its performance.
-      The main goal is therefore to give a content team a useful ranked
-      starting point for human review rather than automatically deciding
-      which pages should be changed.
-    </p>
-  </section>
+      <p class="subtitle">
+        A practical machine learning approach to identifying content pages
+        that may need attention, using search and engagement signals.
+      </p>
+    </header>
 
 
-  <section>
-    <h2>1. The Question</h2>
+    <section>
+      <h2>Abstract</h2>
 
-    <p>
-      Content teams usually have more pages than they have time to review.
-      The question I wanted to investigate was whether the data already
-      available for those pages could help narrow down where the team should
-      look first.
-    </p>
-
-    <div class="highlight">
-      <strong>Research question:</strong>
-      Can search performance, engagement and content-age signals be used to
-      rank pages that are more likely to show signs of decline?
-    </div>
-
-    <p>
-      This is a ranking problem rather than an attempt to completely
-      automate content decisions. A useful model should help a person
-      decide where to spend their time first.
-    </p>
-  </section>
+      <p>
+        This project looks at a simple question: can we use existing search
+        and engagement data to identify content pages that are showing signs
+        of decline? I built a classification model using signals such as
+        impressions, clicks, search position, engagement and content age,
+        while keeping the prediction target separate from information that
+        would only be known later. On the honest validation split, the model
+        achieved a Precision@50 of 0.680, compared with a test-set base rate
+        of 0.517. This suggests that the model can do a better job than
+        simply selecting pages at random, although the result should not be
+        treated as proof that refreshing a page will improve its performance.
+        The main goal is therefore to give a content team a useful ranked
+        starting point for human review rather than automatically deciding
+        which pages should be changed.
+      </p>
+    </section>
 
 
-  <section>
-    <h2>2. Data</h2>
+    <section>
+      <h2>1. The Question</h2>
 
-    <p>
-      The analysis uses the FlyRank ML Internship dataset. The working
-      dataset contains 30,000 content pages, with one row representing one
-      content page.
-    </p>
+      <p>
+        Content teams usually have more pages than they have time to review.
+        The question I wanted to investigate was whether the data already
+        available for those pages could help narrow down where the team
+        should look first.
+      </p>
 
-    <p>
-      The available fields include search demand, competition, content
-      characteristics, search performance and engagement signals. The
-      analysis uses public-safe and anonymized information only. Client
-      names, private search queries and other identifying information are
-      not included in the paper.
-    </p>
-
-    <h3>Time windows</h3>
-
-    <p>
-      The main performance signals are based on 90-day and 30-day windows.
-      The 30-day fields also provide a previous-period comparison, which
-      makes it possible to measure whether recent performance has moved
-      relative to the preceding period.
-    </p>
-
-    <h3>Unit of analysis</h3>
-
-    <p>
-      One row represents one content page. The dataset contains 30,000
-      unique content IDs and no duplicate content-ID rows.
-    </p>
-  </section>
-
-
-  <section>
-    <h2>3. Methodology</h2>
-
-    <h3>Features</h3>
-
-    <p>
-      I used signals that would reasonably exist when making a content
-      review decision. These included impressions, clicks, CTR, average
-      search position, engagement rate, content age and recent performance
-      changes. Categorical information such as content type and intent was
-      also considered where appropriate.
-    </p>
-
-    <h3>Label</h3>
-
-    <p>
-      The target is a binary indicator for whether a page is classified as
-      declining. The label is based on the defined trend direction rather
-      than being manually assigned after looking at the model's prediction.
-    </p>
-
-    <h3>Baseline</h3>
-
-    <p>
-      I compared the model against a simple baseline. This matters because
-      a model is only useful if it improves on a straightforward rule.
-      Precision@50 was used as the main ranking metric because the practical
-      question is which pages should be reviewed first.
-    </p>
-
-    <h3>Validation</h3>
-
-    <p>
-      I also tested the model using an honest validation split rather than
-      relying only on the original result. The final honest-split result
-      was a Precision@50 of 0.680.
-    </p>
-
-    <h3>Leakage checks</h3>
-
-    <p>
-      A major part of the analysis was checking that the model was not
-      accidentally using information derived from the target or information
-      that would only become available after the prediction point.
-      Future performance windows and target-derived fields were treated as
-      leakage risks and excluded from the final feature set.
-    </p>
-  </section>
-
-
-  <section>
-    <h2>4. Results</h2>
-
-    <p>
-      The model's final honest-split Precision@50 was:
-    </p>
-
-    <div class="result-grid">
-
-      <div class="card">
-        <span class="number">0.680</span>
-        <span class="label">Model Precision@50</span>
+      <div class="highlight">
+        <strong>Research question:</strong>
+        Can search performance, engagement and content-age signals be used to
+        rank pages that are more likely to show signs of decline?
       </div>
 
-      <div class="card">
-        <span class="number">0.517</span>
-        <span class="label">Test-set base rate</span>
+      <p>
+        This is a ranking problem rather than an attempt to completely
+        automate content decisions. A useful model should help a person
+        decide where to spend their time first.
+      </p>
+    </section>
+
+
+    <section>
+      <h2>2. Data</h2>
+
+      <p>
+        The analysis uses the FlyRank ML Internship dataset. The working
+        dataset contains 30,000 content pages, with one row representing one
+        content page.
+      </p>
+
+      <p>
+        The available fields include search demand, competition, content
+        characteristics, search performance and engagement signals. The
+        analysis uses public-safe and anonymized information only. Client
+        names, private search queries and other identifying information are
+        not included in the paper.
+      </p>
+
+      <h3>Time windows</h3>
+
+      <p>
+        The main performance signals are based on 90-day and 30-day windows.
+        The 30-day fields also provide a previous-period comparison, which
+        makes it possible to measure whether recent performance has moved
+        relative to the preceding period.
+      </p>
+
+      <h3>Unit of analysis</h3>
+
+      <p>
+        One row represents one content page. The dataset contains 30,000
+        unique content IDs and no duplicate content-ID rows.
+      </p>
+    </section>
+
+
+    <section>
+      <h2>3. Methodology</h2>
+
+      <h3>Features</h3>
+
+      <p>
+        I used signals that would reasonably exist when making a content
+        review decision. These included impressions, clicks, CTR, average
+        search position, engagement rate, content age and recent performance
+        changes. Categorical information such as content type and intent was
+        also considered where appropriate.
+      </p>
+
+      <h3>Label</h3>
+
+      <p>
+        The target is a binary indicator for whether a page is classified as
+        declining. The label is based on the defined trend direction rather
+        than being manually assigned after looking at the model's prediction.
+      </p>
+
+      <h3>Baseline</h3>
+
+      <p>
+        I compared the model against a simple baseline. This matters because
+        a model is only useful if it improves on a straightforward rule.
+        Precision@50 was used as the main ranking metric because the practical
+        question is which pages should be reviewed first.
+      </p>
+
+      <h3>Validation</h3>
+
+      <p>
+        I also tested the model using an honest validation split rather than
+        relying only on the original result. The final honest-split result
+        was a Precision@50 of 0.680.
+      </p>
+
+      <h3>Leakage checks</h3>
+
+      <p>
+        A major part of the analysis was checking that the model was not
+        accidentally using information derived from the target or information
+        that would only become available after the prediction point.
+        Future performance windows and target-derived fields were treated as
+        leakage risks and excluded from the final feature set.
+      </p>
+    </section>
+
+
+    <section>
+      <h2>4. Results</h2>
+
+      <p>
+        The final model was evaluated on an honest validation split using
+        Precision@50. The idea here is pretty simple: if the team only has
+        time to look at a small number of pages, are the pages at the top
+        of the model's list actually more likely to be declining?
+      </p>
+
+      <div class="result-grid">
+
+        <div class="card">
+          <span class="number">0.680</span>
+          <span class="label">Model Precision@50</span>
+        </div>
+
+        <div class="card">
+          <span class="number">0.517</span>
+          <span class="label">Test-set base rate</span>
+        </div>
+
+        <div class="card">
+          <span class="number">+0.300</span>
+          <span class="label">Lift vs baseline</span>
+        </div>
+
       </div>
 
-      <div class="card">
-        <span class="number">+0.300</span>
-        <span class="label">Lift vs baseline</span>
+      <p>
+        The model reached a Precision@50 of 0.680 on the honest split,
+        compared with 0.380 for the baseline. That is a 0.300 improvement
+        in Precision@50. In practical terms, the model gives us a more useful
+        first group of pages to investigate instead of treating every page
+        as equally likely to need attention.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>Precision@50</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>Baseline</td>
+            <td>0.380</td>
+          </tr>
+
+          <tr>
+            <td>Model</td>
+            <td>0.680</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <h3>What the data looks like</h3>
+
+      <p>
+        The dataset contains a mix of pages with different trend directions.
+        The distribution below gives some context for the prediction problem
+        before looking at the model's ranking.
+      </p>
+
+      <img
+        src="../outputs/charts/trend_distribution.svg"
+        alt="Distribution of content page trends"
+        style="width:100%; max-width:800px; margin:20px 0 35px 0;"
+      >
+
+
+      <h3>Which signals mattered?</h3>
+
+      <p>
+        The model did not rely on a single number. Several of the available
+        search and engagement signals contributed to the ranking. The feature
+        importance chart below shows which features were most influential in
+        the fitted model.
+      </p>
+
+      <img
+        src="../outputs/charts/top_feature_importance.svg"
+        alt="Top feature importance"
+        style="width:100%; max-width:800px; margin:20px 0 35px 0;"
+      >
+
+
+      <h3>What would the team actually do?</h3>
+
+      <p>
+        The model output was turned into reason codes and suggested actions so
+        that the ranking is easier for a person to understand. The charts
+        below show the mix of reasons and actions in the resulting queue.
+      </p>
+
+      <img
+        src="../outputs/charts/top_reason_codes.svg"
+        alt="Top reason codes"
+        style="width:100%; max-width:800px; margin:20px 0 35px 0;"
+      >
+
+      <img
+        src="../outputs/charts/action_mix.svg"
+        alt="Action mix"
+        style="width:100%; max-width:800px; margin:20px 0 35px 0;"
+      >
+
+
+      <h3>Confidence</h3>
+
+      <p>
+        Confidence is useful for deciding how strongly a recommendation
+        should be treated. Higher-confidence recommendations can be reviewed
+        earlier, while lower-confidence cases need more context from a human
+        reviewer.
+      </p>
+
+      <img
+        src="../outputs/charts/confidence_mix.svg"
+        alt="Confidence mix"
+        style="width:100%; max-width:800px; margin:20px 0 35px 0;"
+      >
+
+
+      <div class="highlight">
+        <strong>What I take from the results:</strong>
+        The model looks useful as a prioritisation tool. It improves on the
+        baseline on the same metric and gives the content team a smaller group
+        of pages to investigate first. It does not tell us that a particular
+        page definitely needs a refresh, or that a refresh will cause better
+        performance.
+      </div>
+    </section>
+
+
+    <section>
+      <h2>5. Limitations</h2>
+
+      <p>
+        There are several reasons not to overstate these results. First,
+        this is observational data, so the model can identify patterns and
+        associations but cannot prove that one factor caused a page to
+        decline.
+      </p>
+
+      <p>
+        Second, Precision@50 only tells us about the quality of the highest
+        ranked pages. It does not mean that every page outside the top 50 is
+        unimportant.
+      </p>
+
+      <p>
+        Finally, a page being identified as declining does not automatically
+        mean that refreshing it is the correct solution. Search demand,
+        competition, seasonality, content quality and other factors can all
+        affect performance.
+      </p>
+
+      <div class="highlight">
+        <strong>Honest interpretation:</strong>
+        The model should be used to prioritise human review, not to
+        automatically decide which content should be changed.
+      </div>
+    </section>
+
+
+    <section>
+      <h2>6. Ranked Recommendations</h2>
+
+      <p>
+        Based on the analysis, I would use the model as a first-pass queue
+        for a content team.
+      </p>
+
+
+      <div class="recommendation">
+        <strong>1. Start with the highest-ranked pages</strong>
+
+        Review the top of the model's queue first because these pages have
+        the strongest combination of signals associated with decline.
       </div>
 
-    </div>
 
-    <p>
-      In other words, 68% of the model's top 50 selections were positive
-      examples in the honest test set. The model therefore gives the
-      content team a more focused list than the baseline used for comparison.
-    </p>
+      <div class="recommendation">
+        <strong>2. Check the reason before changing anything</strong>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Approach</th>
-          <th>Precision@50</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Baseline</td>
-          <td>0.380</td>
-        </tr>
-        <tr>
-          <td>Model</td>
-          <td>0.680</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p>
-      The important point is not that the model is perfect. It is that the
-      model improves the quality of the first group of pages presented for
-      review. That makes it potentially useful as a prioritisation tool.
-    </p>
-  </section>
+        A ranking is a starting point, not a diagnosis. The reviewer should
+        look at the page, its search position, traffic trend and intent before
+        deciding what action makes sense.
+      </div>
 
 
-  <section>
-    <h2>5. Limitations</h2>
+      <div class="recommendation">
+        <strong>3. Prioritise pages where the decline is meaningful</strong>
 
-    <p>
-      There are several reasons not to overstate these results. First,
-      this is observational data, so the model can identify patterns and
-      associations but cannot prove that one factor caused a page to
-      decline.
-    </p>
-
-    <p>
-      Second, Precision@50 only tells us about the quality of the highest
-      ranked pages. It does not mean that every page outside the top 50 is
-      unimportant.
-    </p>
-
-    <p>
-      Finally, a page being identified as declining does not automatically
-      mean that refreshing it is the correct solution. Search demand,
-      competition, seasonality, content quality and other factors can all
-      affect performance.
-    </p>
-
-    <div class="highlight">
-      <strong>Honest interpretation:</strong>
-      The model should be used to prioritise human review, not to
-      automatically decide which content should be changed.
-    </div>
-  </section>
+        A small movement in traffic does not necessarily justify a content
+        refresh. Larger or more consistent changes deserve more attention.
+      </div>
 
 
-  <section>
-    <h2>6. Ranked Recommendations</h2>
+      <div class="recommendation">
+        <strong>4. Keep a human in the loop</strong>
 
-    <p>
-      Based on the analysis, I would use the model as a first-pass queue
-      for a content team.
-    </p>
-
-    <div class="recommendation">
-      <strong>1. Start with the highest-ranked pages</strong>
-      Review the top of the model's queue first because these pages have
-      the strongest combination of signals associated with decline.
-    </div>
-
-    <div class="recommendation">
-      <strong>2. Check the reason before changing anything</strong>
-      A ranking is a starting point, not a diagnosis. The reviewer should
-      look at the page, its search position, traffic trend and intent before
-      deciding what action makes sense.
-    </div>
-
-    <div class="recommendation">
-      <strong>3. Prioritise pages where the decline is meaningful</strong>
-      A small movement in traffic does not necessarily justify a content
-      refresh. Larger or more consistent changes deserve more attention.
-    </div>
-
-    <div class="recommendation">
-      <strong>4. Keep a human in the loop</strong>
-      The model should recommend what to inspect first. The final decision
-      about rewriting, updating, merging or leaving a page alone should
-      remain with a person.
-    </div>
-
-    <div class="recommendation">
-      <strong>5. Recheck the model over time</strong>
-      Search behaviour changes, so a ranking system should not be assumed
-      to stay accurate forever. Its performance should be monitored and
-      the model reconsidered when the underlying data changes.
-    </div>
-  </section>
+        The model should recommend what to inspect first. The final decision
+        about rewriting, updating, merging or leaving a page alone should
+        remain with a person.
+      </div>
 
 
-  <section>
-    <h2>7. Reproducibility</h2>
+      <div class="recommendation">
+        <strong>5. Recheck the model over time</strong>
 
-    <p>
-      The analysis and supporting work are available in the project
-      repository. The notebooks contain the data-contract checks,
-      feature/leakage analysis, signal audit, baseline model, validation
-      work and action playbook used to build this paper.
-    </p>
-
-    <p>
-      <a href="https://github.com/vedant08mehta/Flyrank-assignment1">
-        View the project repository on GitHub
-      </a>
-    </p>
-  </section>
+        Search behaviour changes, so a ranking system should not be assumed
+        to stay accurate forever. Its performance should be monitored and
+        the model reconsidered when the underlying data changes.
+      </div>
+    </section>
 
 
-  <section>
-    <h2>8. Acknowledgments & Data Credit</h2>
+    <section>
+      <h2>7. Reproducibility</h2>
 
-    <p>
-      Built on the FlyRank ML Internship dataset.
-    </p>
+      <p>
+        The analysis and supporting work are available in the project
+        repository. The notebooks contain the data-contract checks,
+        feature/leakage analysis, signal audit, baseline model, validation
+        work and action playbook used to build this paper.
+      </p>
 
-    <p>
-      Data source:
-      <a href="https://flyrank.ai">FlyRank</a>
-    </p>
-
-    <p class="small">
-      This paper presents an internship analysis using anonymized,
-      public-safe data and does not include client names, private queries
-      or private URLs.
-    </p>
-  </section>
+      <p>
+        <a href="https://github.com/vedant08mehta/Flyrank-assignment1">
+          View the project repository on GitHub
+        </a>
+      </p>
+    </section>
 
 
-  <footer>
-    <p>
-      FlyRank ML Internship · Week 8 Research Paper
-    </p>
-  </footer>
+    <section>
+      <h2>8. Acknowledgments &amp; Data Credit</h2>
 
-</div>
+      <p>
+        Built on the FlyRank ML Internship dataset.
+      </p>
+
+      <p>
+        Data source:
+        <a href="https://flyrank.ai">FlyRank</a>
+      </p>
+
+      <p class="small">
+        This paper presents an internship analysis using anonymized,
+        public-safe data and does not include client names, private queries
+        or private URLs.
+      </p>
+    </section>
+
+
+    <footer>
+      <p>
+        FlyRank ML Internship · Week 8 Research Paper
+      </p>
+    </footer>
+
+  </div>
 
 </body>
 </html>
