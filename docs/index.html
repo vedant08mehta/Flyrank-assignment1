@@ -182,19 +182,18 @@
       <h2>Abstract</h2>
 
       <p>
-        This project looks at a simple question: can we use existing search
-        and engagement data to identify content pages that are showing signs
-        of decline? I built a classification model using signals such as
-        impressions, clicks, search position, engagement and content age,
-        while keeping the prediction target separate from information that
-        would only be known later. On the honest validation split, the model
-        achieved a Precision@50 of 0.680, compared with a test-set base rate
-        of 0.517. This suggests that the model can do a better job than
-        simply selecting pages at random, although the result should not be
-        treated as proof that refreshing a page will improve its performance.
-        The main goal is therefore to give a content team a useful ranked
-        starting point for human review rather than automatically deciding
-        which pages should be changed.
+        Content teams can have a large number of pages to look after, but
+        limited time to review all of them. This project asks whether existing
+        search and engagement data can be used to find pages that show signs
+        of decline and help decide which ones are worth looking at first. I
+        built a classification model using signals such as impressions,
+        clicks, search position, engagement and content age, while keeping
+        information from the future out of the features. On the honest
+        validation split, the model reached a Precision@50 of 0.680 compared
+        with 0.380 for the baseline. The result suggests that the model can
+        make the review process more focused, but it should be treated as a
+        prioritisation tool for human review rather than a system that
+        automatically decides which content should be changed.
       </p>
     </section>
 
