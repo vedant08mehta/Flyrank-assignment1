@@ -227,33 +227,69 @@
       <h2>2. Data</h2>
 
       <p>
-        The analysis uses the FlyRank ML Internship dataset. The working
-        dataset contains 30,000 content pages, with one row representing one
-        content page.
+        I used the anonymized content-refresh dataset provided for the FlyRank
+        ML Internship. The working dataset contains 30,000 content pages and
+        45 columns, with one row representing one content page.
       </p>
 
       <p>
-        The available fields include search demand, competition, content
-        characteristics, search performance and engagement signals. The
-        analysis uses public-safe and anonymized information only. Client
-        names, private search queries and other identifying information are
-        not included in the paper.
+        The dataset includes search-performance information such as
+        impressions, clicks, CTR and average position, along with content and
+        engagement information such as content age, word count, engagement
+        rate and days since the last update.
       </p>
 
-      <h3>Time windows</h3>
+      <h3>Release and tables</h3>
 
       <p>
-        The main performance signals are based on 90-day and 30-day windows.
-        The 30-day fields also provide a previous-period comparison, which
-        makes it possible to measure whether recent performance has moved
-        relative to the preceding period.
+        For the earlier experiments, I worked with the small starter dataset
+        included with the internship repository. For the later feature-
+        engineering work, I also worked with the internship warehouse release
+        through DuckDB, which allowed the data to be queried without loading
+        the entire release into memory.
       </p>
 
-      <h3>Unit of analysis</h3>
+      <p>
+        The warehouse work used the client, content, daily performance and
+        90-day content-query tables. This was useful for building page-level
+        features from larger amounts of historical performance data.
+      </p>
+
+      <h3>Date windows</h3>
 
       <p>
-        One row represents one content page. The dataset contains 30,000
-        unique content IDs and no duplicate content-ID rows.
+        The page-level dataset contains 90-day performance fields, including
+        impressions, clicks, sessions and engagement measures. I also used
+        30-day and previous-30-day values when comparing recent performance
+        with the preceding period.
+      </p>
+
+      <p>
+        In the warehouse experiment, I also created a 90-day feature window
+        and compared the recent 45 days with the preceding 45 days. I added
+        position volatility as an extra feature to capture how much a page's
+        average search position changed over that period.
+      </p>
+
+      <h3>What I excluded</h3>
+
+      <p>
+        I excluded fields that directly contained or revealed the outcome
+        from the model features. In particular, trend direction, trend
+        percentage and the decline label were not used as predictors.
+      </p>
+
+      <p>
+        I also avoided using information from future performance windows when
+        building the features. The goal was to make sure the model only used
+        information that could reasonably have been available when making the
+        ranking.
+      </p>
+
+      <p>
+        Finally, the paper only presents anonymized and public-safe
+        information. Client names, private URLs and private search queries
+        are not included.
       </p>
     </section>
 
@@ -264,46 +300,82 @@
       <h3>Features</h3>
 
       <p>
-        I used signals that would reasonably exist when making a content
-        review decision. These included impressions, clicks, CTR, average
-        search position, engagement rate, content age and recent performance
-        changes. Categorical information such as content type and intent was
-        also considered where appropriate.
+        I wanted the model to use signals that would actually be available
+        when deciding which pages deserve attention. The features included
+        search performance, engagement and content characteristics such as
+        impressions, clicks, CTR, average position, engagement rate and
+        content age.
+      </p>
+
+      <p>
+        In the warehouse experiment, I also tested position volatility as an
+        additional feature. This was calculated from the variation in average
+        search position over the 90-day window.
       </p>
 
       <h3>Label</h3>
 
       <p>
-        The target is a binary indicator for whether a page is classified as
-        declining. The label is based on the defined trend direction rather
-        than being manually assigned after looking at the model's prediction.
+        I treated the task as a binary classification problem. A page was
+        labelled as declining when its trend direction was "down". The model
+        then learned to distinguish declining pages from the other pages
+        using the available features.
       </p>
 
       <h3>Baseline</h3>
 
       <p>
-        I compared the model against a simple baseline. This matters because
-        a model is only useful if it improves on a straightforward rule.
-        Precision@50 was used as the main ranking metric because the practical
-        question is which pages should be reviewed first.
+        Before using machine learning, I created a simple rule-based
+        baseline. This gave me something straightforward to compare the
+        model against. The baseline used signals such as CTR, search position
+        and recent impression changes to prioritise pages.
+      </p>
+
+      <p>
+        I used Precision@50 as the main metric because the practical goal is
+        to create a short list of pages for review. If a team only has time
+        to investigate 50 pages, the useful question is how many of those
+        first 50 pages are actually relevant.
+      </p>
+
+      <h3>Model</h3>
+
+      <p>
+        I used a Random Forest classifier for the machine learning model. It
+        can combine several signals and capture relationships that a single
+        hand-written rule might miss. I used 200 trees with a fixed random
+        seed so that the experiment could be reproduced.
       </p>
 
       <h3>Validation</h3>
 
       <p>
-        I also tested the model using an honest validation split rather than
-        relying only on the original result. The final honest-split result
-        was a Precision@50 of 0.680.
+        I initially experimented with a normal train/test split, but for the
+        more realistic evaluation I used a client-grouped split. Grouping by
+        client means that pages from the same client cannot appear in both
+        the training and test sets.
+      </p>
+
+      <p>
+        The final split contained 24 clients in training and 8 clients in
+        testing, with no clients shared between the two groups. This gives a
+        better indication of how the approach might perform on a client that
+        was not seen during training.
       </p>
 
       <h3>Leakage checks</h3>
 
       <p>
-        A major part of the analysis was checking that the model was not
-        accidentally using information derived from the target or information
-        that would only become available after the prediction point.
-        Future performance windows and target-derived fields were treated as
-        leakage risks and excluded from the final feature set.
+        I checked the feature list for variables that could reveal the target
+        directly. Fields such as trend direction, trend percentage and the
+        decline label were excluded from the model inputs.
+      </p>
+
+      <p>
+        I also checked the time windows used to create features so that future
+        outcome information was not accidentally fed into the model. These
+        checks are important because a model can appear much better than it
+        really is if information about the answer leaks into the inputs.
       </p>
     </section>
 
